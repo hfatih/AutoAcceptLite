@@ -7,6 +7,8 @@ $runtime = Join-Path $payload 'runtime'
 $assetRoot = Join-Path $workRoot 'assets'
 $csc = 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 $compiler = $env:INNO_SETUP_COMPILER
+$version = (Get-Content -Raw (Join-Path $repoRoot 'package.json') | ConvertFrom-Json).version
+if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid package version.' }
 if ([string]::IsNullOrWhiteSpace($compiler)) {
     $compiler = @('C:/Program Files (x86)/Inno Setup 7/ISCC.exe', 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe', (Join-Path $env:LOCALAPPDATA 'Programs/Inno Setup 6/ISCC.exe')) |
         Where-Object { Test-Path $_ } | Select-Object -First 1
@@ -24,7 +26,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'npm ci failed.' }
 } finally { Pop-Location }
 
-if (Test-Path $appOut) { Remove-Item -LiteralPath $appOut -Recurse -Force }
+if (Test-Path $appOut) {
+    if ((Resolve-Path $appOut).Path -ne (Join-Path $workRoot 'payload\app')) { throw 'Unexpected app output path.' }
+    Remove-Item -LiteralPath $appOut -Recurse -Force
+}
 New-Item -ItemType Directory -Force -Path $appOut | Out-Null
 foreach ($name in @('index.js', 'config.json', 'package.json', 'package-lock.json', 'README.md', 'README.tr.md', 'LICENSE', 'LICENSE.upstream', 'THIRD-PARTY-NOTICES.md')) {
     Copy-Item -LiteralPath (Join-Path $repoRoot $name) -Destination $appOut
@@ -32,9 +37,21 @@ foreach ($name in @('index.js', 'config.json', 'package.json', 'package-lock.jso
 Copy-Item -LiteralPath (Join-Path $repoRoot 'src') -Destination $appOut -Recurse
 Copy-Item -LiteralPath (Join-Path $repoRoot 'node_modules') -Destination $appOut -Recurse
 
-& $csc /nologo /target:winexe /platform:x64 /optimize+ /codepage:65001 /reference:System.Windows.Forms.dll /reference:System.Drawing.dll "/win32icon:$(Join-Path $assetRoot 'AutoAcceptLite.ico')" "/out:$(Join-Path $payload 'AutoAcceptLite.exe')" (Join-Path $workRoot 'Launcher.cs')
+& (Join-Path $runtime 'node.exe') (Join-Path $appOut 'index.js') --check
+if ($LASTEXITCODE -ne 0) { throw 'Packaged engine check failed.' }
+& $csc /nologo /target:winexe /platform:x64 /optimize+ /codepage:65001 /reference:System.Windows.Forms.dll /reference:System.Drawing.dll "/win32manifest:$(Join-Path $workRoot 'app.manifest')" "/win32icon:$(Join-Path $assetRoot 'AutoAcceptLite.ico')" "/out:$(Join-Path $payload 'AutoAcceptLite.exe')" (Join-Path $workRoot 'Launcher.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Tray launcher build failed.' }
-& $csc /nologo /target:winexe /platform:x64 /optimize+ /codepage:65001 /define:UNINSTALL /reference:System.Windows.Forms.dll /reference:System.Drawing.dll "/win32icon:$(Join-Path $assetRoot 'AutoAcceptLite.ico')" "/out:$(Join-Path $workRoot 'dist/AutoAcceptLite-Kaldir.exe')" (Join-Path $workRoot 'Launcher.cs')
+& $csc /nologo /target:winexe /platform:x64 /optimize+ /codepage:65001 /define:UNINSTALL /reference:System.Windows.Forms.dll /reference:System.Drawing.dll "/win32manifest:$(Join-Path $workRoot 'app.manifest')" "/win32icon:$(Join-Path $assetRoot 'AutoAcceptLite.ico')" "/out:$(Join-Path $workRoot "dist/AutoAcceptLite-Kaldir-$version.exe")" (Join-Path $workRoot 'Launcher.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Uninstaller helper build failed.' }
-& $compiler (Join-Path $workRoot 'setup.iss')
+& $compiler "/DAppVersion=$version" (Join-Path $workRoot 'setup.iss')
 if ($LASTEXITCODE -ne 0) { throw 'Inno Setup build failed.' }
+
+Copy-Item -LiteralPath (Join-Path $workRoot 'Kullanim.txt') -Destination $payload
+$portable = Join-Path $workRoot "dist/AutoAcceptLite-Portable-$version.zip"
+Compress-Archive -LiteralPath @($appOut, $runtime, (Join-Path $payload 'AutoAcceptLite.exe'), (Join-Path $payload 'Kullanim.txt')) -DestinationPath $portable -Force
+$files = @("AutoAcceptLite-Kurulum-$version.exe", "AutoAcceptLite-Kaldir-$version.exe", "AutoAcceptLite-Portable-$version.zip")
+$hashes = foreach ($file in $files) {
+    $hash = (Get-FileHash -LiteralPath (Join-Path $workRoot "dist/$file") -Algorithm SHA256).Hash.ToLowerInvariant()
+    "$hash  $file"
+}
+[IO.File]::WriteAllLines((Join-Path $workRoot 'dist/SHA256SUMS.txt'), $hashes, (New-Object Text.UTF8Encoding $false))

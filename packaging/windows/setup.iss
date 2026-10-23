@@ -1,8 +1,12 @@
-﻿[Setup]
+﻿#ifndef AppVersion
+  #error AppVersion must be supplied by build.ps1
+#endif
+
+[Setup]
 AppId=AutoAcceptLite
 AppName=AutoAccept Lite
-AppVersion=1.1.3
-AppVerName=AutoAccept Lite 1.1.3
+AppVersion={#AppVersion}
+AppVerName=AutoAccept Lite {#AppVersion}
 AppPublisher=AutoAccept Lite
 DefaultDirName={localappdata}\Programs\AutoAcceptLite
 DefaultGroupName=AutoAccept Lite
@@ -10,7 +14,7 @@ PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 MinVersion=10.0
 OutputDir=dist
-OutputBaseFilename=AutoAcceptLite-Kurulum-1.1.3
+OutputBaseFilename=AutoAcceptLite-Kurulum-{#AppVersion}
 SetupIconFile=assets\AutoAcceptLite.ico
 UninstallDisplayIcon={app}\AutoAcceptLite.exe
 WizardStyle=modern
@@ -24,7 +28,7 @@ SolidCompression=yes
 SetupLogging=yes
 UninstallLogging=yes
 CloseApplications=yes
-CloseApplicationsFilter=AutoAcceptLite.exe,node.exe
+CloseApplicationsFilter=AutoAcceptLite.exe
 RestartApplications=no
 LicenseFile=payload\app\LICENSE
 InfoBeforeFile=Kullanim.txt
@@ -42,7 +46,7 @@ Source: "payload\app\*"; DestDir: "{app}\app"; Excludes: "config.json"; Flags: i
 Source: "payload\app\config.json"; DestDir: "{app}\app"; Flags: onlyifdoesntexist uninsneveruninstall
 Source: "payload\runtime\*"; DestDir: "{app}\runtime"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "payload\AutoAcceptLite.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "dist\AutoAcceptLite-Kaldir.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\AutoAcceptLite-Kaldir-{#AppVersion}.exe"; DestDir: "{app}"; DestName: "AutoAcceptLite-Kaldir.exe"; Flags: ignoreversion
 Source: "payload\app\LICENSE.upstream"; DestDir: "{app}"; Flags: ignoreversion
 Source: "payload\runtime\LICENSE.node.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "assets\AutoAcceptLite.ico"; DestDir: "{app}"; Flags: ignoreversion
@@ -58,9 +62,9 @@ Filename: "{app}\AutoAcceptLite.exe"; Description: "{cm:LaunchApp}"; Flags: nowa
 
 [Messages]
 turkish.WelcomeLabel2=Antigravity için otomatik onay aracı bilgisayarınıza kurulacak.%n%nNode.js ve gerekli bağımlılıklar pakete dahildir. Ayrı bir Node.js kurulumu gerekmez.
-turkish.FinishedLabel=AutoAccept Lite kurulumu tamamlandı.%n%nAntigravity'yi açın, ardından AutoAccept Lite masaüstü kısayolunu kullanın. Uygulama bildirim alanında çalışır.
+turkish.FinishedLabel=AutoAccept Lite kurulumu tamamlandı.%n%nAntigravity'yi açın, ardından AutoAccept Lite masaüstü kısayolunu kullanın. Başlangıçta günlük penceresi açılır; kapatınca uygulama bildirim alanında çalışmayı sürdürür.
 english.WelcomeLabel2=This will install the auto-approval tool for Antigravity on your computer.%n%nNode.js and the required dependencies are bundled. No separate Node.js installation is needed.
-english.FinishedLabel=AutoAccept Lite setup is complete.%n%nOpen Antigravity, then use the AutoAccept Lite desktop shortcut. The app runs in the notification area.
+english.FinishedLabel=AutoAccept Lite setup is complete.%n%nOpen Antigravity, then use the AutoAccept Lite desktop shortcut. The log opens on startup; closing it leaves the app running in the notification area.
 
 [CustomMessages]
 turkish.DesktopShortcut=Masaüstü kısayolu oluştur

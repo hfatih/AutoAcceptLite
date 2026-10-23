@@ -132,7 +132,13 @@ async function main() {
     }
 }
 
-main().catch((e) => {
-    log(t('startFailed', e.message), 'err');
-    process.exit(1);
-});
+// Load the engine modules and configuration without opening a CDP connection.
+if (process.argv.includes('--check')) {
+    loadConfig(__dirname);
+    console.log(`AutoAccept Lite ${require('./package.json').version}: OK`);
+} else {
+    main().catch((e) => {
+        log(t('startFailed', e.message), 'err');
+        process.exit(1);
+    });
+}

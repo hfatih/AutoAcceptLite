@@ -1,8 +1,11 @@
 """Render the black-and-white AutoAccept Lite star icon and installer artwork."""
 from pathlib import Path
+import json
 from PIL import Image, ImageDraw, ImageFont
 
-root = Path(__file__).resolve().parents[1] / 'assets'
+repo = Path(__file__).resolve().parents[1]
+version = json.loads((repo / 'package.json').read_text(encoding='utf-8'))['version']
+root = repo / 'assets'
 root.mkdir(exist_ok=True)
 size = 512
 logo = Image.new('RGBA', (size, size), (0, 0, 0, 0))
@@ -38,7 +41,7 @@ draw.text((53,467), 'AutoAccept', font=bold, fill='#101e2d')
 draw.text((53,527), 'Lite', font=bold, fill='#ffffff')
 draw.line((53,636,439,636), fill='#101e2d', width=2)
 draw.text((53,676), 'Antigravity için\notomatik onay.', font=regular, fill='#354b5a', spacing=12)
-draw.text((53,851), 'WINDOWS  ·  1.1.1', font=regular, fill='#354b5a')
+draw.text((53,851), f'WINDOWS  ·  {version}', font=regular, fill='#354b5a')
 wizard.save(root / 'wizard.png')
 
 # Editable vector source for the application icon.

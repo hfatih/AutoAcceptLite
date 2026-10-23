@@ -1,9 +1,9 @@
-﻿AutoAccept Lite 1.1.3 - Windows x64
+﻿AutoAccept Lite 1.1.4 - Windows x64
 (English below)
 
 Kurulumdan sonra Antigravity'yi açın, ardından masaüstü kısayoluyla
-AutoAccept Lite'ı başlatın. Uygulama pencere açmadan bildirim alanında
-çalışır. Simge gizli simgeler okunun arkasında olabilir. Fareyi simgenin
+AutoAccept Lite'ı başlatın. Günlük penceresi açılır; kapatınca bildirim alanında
+çalışmayı sürdürür. Simge gizli simgeler okunun arkasında olabilir. Fareyi simgenin
 üzerine getirince durumu görürsünüz: çalışıyor, duraklatıldı ya da motor durdu.
 
 Simgeye sağ tıklayın:
@@ -44,7 +44,7 @@ ayarları otomatik olarak değiştirilmez.
 English
 
 After setup, open Antigravity, then start AutoAccept Lite from its desktop
-shortcut. The app runs in the notification area without opening a window.
+shortcut. The log opens on startup; closing it leaves the app in the notification area.
 The icon may be behind the hidden-icons arrow. Hover over it to see the
 state: running, paused or engine stopped.
 
@@ -80,3 +80,14 @@ The setup and uninstall EXEs are not signed with a trusted publisher
 certificate. Devices with Smart App Control may block them; that does not
 prove the app is harmful. Windows security settings are never changed
 automatically.
+
+
+1.1.4 - Portable / Taşınabilir
+ZIP dosyasının tamamını çıkarın; app ve runtime klasörlerini EXE yanında tutun.
+Extract the entire ZIP; keep app and runtime alongside AutoAcceptLite.exe.
+
+Günlükler / Logs: %LOCALAPPDATA%\AutoAcceptLite\logs
+Tepsi: Günlük klasörünü aç / Tray: Open log folder
+
+İmzasız EXE uyarıları devam edebilir. Antivirüs tarama onayı verilmemiştir.
+Unsigned EXE warnings may remain. No antivirus certification is claimed.

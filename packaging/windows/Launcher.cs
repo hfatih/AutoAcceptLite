@@ -14,8 +14,8 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("AutoAccept Lite")]
 [assembly: AssemblyDescription("AutoAccept Lite tray application")]
 [assembly: AssemblyProduct("AutoAccept Lite")]
-[assembly: AssemblyVersion("1.1.3.0")]
-[assembly: AssemblyFileVersion("1.1.3.0")]
+[assembly: AssemblyVersion("1.1.4.0")]
+[assembly: AssemblyFileVersion("1.1.4.0")]
 
 // Arayuz dili: app\config.json icindeki "language" ("tr" / "en") motorla ayni sekilde once gelir;
 // yoksa ya da "auto" ise Windows goruntuleme diline bakilir (Turkce ise Turkce, degilse Ingilizce).
@@ -79,14 +79,18 @@ internal static class Launcher
         }
         catch (Exception error)
         {
-            MessageBox.Show(error.Message, "AutoAccept Lite", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            string saved = Diagnostics.Save("launcher-error.log", error.ToString());
+            if (args.Length == 1 && args[0] == "--check") return 1;
+            string message = error.Message;
+            if (saved != null) message += Environment.NewLine + Environment.NewLine + saved;
+            MessageBox.Show(message, "AutoAccept Lite", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         }
     }
 
     private static int Check(string node, string entry)
     {
-        ProcessStartInfo info = new ProcessStartInfo(node, "--check " + Quote(entry));
+        ProcessStartInfo info = new ProcessStartInfo(node, Quote(entry) + " --check");
         info.WorkingDirectory = Path.GetDirectoryName(entry);
         info.UseShellExecute = false;
         info.CreateNoWindow = true;
@@ -167,6 +171,25 @@ internal static class Launcher
 #endif
 }
 
+internal static class Diagnostics
+{
+    internal static readonly string Folder = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AutoAcceptLite", "logs");
+
+    internal static string Save(string name, string text)
+    {
+        try
+        {
+            Directory.CreateDirectory(Folder);
+            string file = Path.Combine(Folder, name);
+            File.WriteAllText(file, DateTime.Now.ToString("s") + Environment.NewLine + text, Encoding.UTF8);
+            return file;
+        }
+        catch (IOException) { return null; }
+        catch (UnauthorizedAccessException) { return null; }
+    }
+}
+
 #if !UNINSTALL
 internal sealed class TrayApplication : ApplicationContext
 {
@@ -225,6 +248,14 @@ internal sealed class TrayApplication : ApplicationContext
         menu.Items.Add(showItem);
         menu.Items.Add(pauseItem);
         menu.Items.Add(restartItem);
+        ToolStripMenuItem logsItem = new ToolStripMenuItem(Lang.T("Günlük klasörünü aç", "Open log folder"));
+        logsItem.Click += delegate
+        {
+            SaveLog();
+            if (Directory.Exists(Diagnostics.Folder))
+                Process.Start(new ProcessStartInfo(Diagnostics.Folder) { UseShellExecute = true });
+        };
+        menu.Items.Add(logsItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(exitItem);
 
@@ -243,6 +274,8 @@ internal sealed class TrayApplication : ApplicationContext
         {
             StartWorker();
             Push(Lang.T("AutoAccept Lite bildirim alanında başladı.", "AutoAccept Lite started in the notification area."));
+            logWindow.Show();
+            RefreshLog();
             tray.ShowBalloonTip(2500, "AutoAccept Lite", Lang.T(
                 "Arka planda çalışıyor. Simgeye sağ tıklayıp günlüğü gösterebilir veya duraklatabilirsiniz.",
                 "Running in the background. Right-click the icon to show the log or pause."), ToolTipIcon.Info);
@@ -275,9 +308,9 @@ internal sealed class TrayApplication : ApplicationContext
         process.ErrorDataReceived += OnOutput;
         process.Exited += OnWorkerExit;
         process.Start();
+        worker = process;
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
-        worker = process;
         paused = false;
         UpdateStatus();
     }
@@ -328,18 +361,32 @@ internal sealed class TrayApplication : ApplicationContext
         logText.ScrollToCaret();
     }
 
+    private void SaveLog()
+    {
+        string text;
+        lock (gate) { text = String.Join(Environment.NewLine, lines.ToArray()); }
+        Diagnostics.Save("last-session.log", text);
+    }
+
     private void OnWorkerExit(object sender, EventArgs e)
     {
         Process process = (Process)sender;
         int code;
         try { code = process.ExitCode; } catch (InvalidOperationException) { code = -1; }
         Push(String.Format(Lang.T("Motor kapandı (kod {0}).", "Engine stopped (code {0})."), code));
+        SaveLog();
         try
         {
             logWindow.BeginInvoke(new Action(delegate
             {
                 if (closing || restarting || !ReferenceEquals(process, worker)) return;
                 UpdateStatus();
+                if (code != 0)
+                {
+                    logWindow.Show();
+                    lock (gate) { dirty = true; }
+                    RefreshLog();
+                }
                 tray.ShowBalloonTip(3000, "AutoAccept Lite", Lang.T(
                     "Motor durdu. Ayrıntı için günlüğe bakın; menüden yeniden başlatabilirsiniz.",
                     "The engine stopped. See the log for details; you can restart it from the menu."), ToolTipIcon.Warning);
@@ -433,6 +480,7 @@ internal sealed class TrayApplication : ApplicationContext
     {
         closing = true;
         refreshTimer.Dispose();
+        SaveLog();
         tray.Visible = false;
         tray.Dispose();
         if (worker != null)

@@ -65,7 +65,7 @@ Windows bildirim alanında yaşar, Antigravity ile yalnızca onun kendi yerel Ch
 - **Kenar çubuğu koruması:** sohbet başlığında geçen `run` gibi kısa sözcükler düğme sanılmaz.
 
 ### 🪟 Düzgün Bir Tepsi Uygulaması
-- **Konsol penceresi yok:** bildirim alanında, durum ipucuyla çalışır.
+- **Görünür başlangıç:** açıldığını görebilmeniz için günlük penceresini açar. Pencereyi kapatınca bildirim alanında çalışmayı sürdürür.
 - **Günlüğü göster:** bağlantıları, tıklamaları ve engellemeleri canlı izleyin.
 - **Duraklat / Devam et:** hiçbir şeyi kapatmadan tıklamayı durdurun.
 - **Motoru yeniden başlat:** `config.json` değişikliklerini tek tıkla uygulayın.
@@ -130,6 +130,19 @@ Görev Yöneticisi'nde uygulama iki satır olarak görünür: **AutoAccept Lite*
 
 ---
 
+## 📦 1.1.4 sürümü ve taşınabilir paket
+
+- CDP bağlantısı zaman aşımına uğradığında motoru düşüren hata düzeltildi.
+- Günlük başlangıçta ve beklenmeyen motor hatasında görünür; son oturum diske kaydedilir.
+- Kurulumun uygulama kapatma filtresinden genel `node.exe` adı çıkarıldı.
+- Resmi Node.js 22.23.4 x64 içeren eksiksiz taşınabilir ZIP ve `SHA256SUMS.txt` eklendi.
+
+**Taşınabilir kullanım:** son sürümden `AutoAcceptLite-Portable-1.1.4.zip` dosyasını indirin, **tamamını** bir klasöre çıkarın ve içindeki `AutoAcceptLite.exe` dosyasını çalıştırın. `app/` ve `runtime/` klasörleri EXE'nin yanında kalmalıdır. ZIP'in içinden veya tek başına indirilen launcher EXE ile çalıştırmayın. Ayrıca Node.js kurmanız gerekmez.
+
+**Günlükler:** tepsi menüsündeki **Günlük klasörünü aç** seçeneğini kullanın. `%LOCALAPPDATA%\AutoAcceptLite\logs` altında `last-session.log` son 1.000 satırı (çıkışta/hata durumunda üzerine yazılır), `launcher-error.log` başlangıç hatalarını tutar. Onay motorunu başlatmadan paket kontrolü için `.\AutoAcceptLite.exe --check` çalıştırın; çıkış kodu 0, modüllerin yüklendiğini gösterir.
+
+**Güvenlik uyarıları:** proje EXE'leri **imzasızdır**; bu sürüm için güvenilir kod imzalama sertifikası mevcut değildi. SmartScreen uyarısı veya Smart App Control engeli devam edebilir; yeniden derleme ve taşınabilir ZIP bunu kesin çözmez. [Microsoft'un açıklaması](https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/overview). Güvenlik ayarları değiştirilmez ve antivirüs istisnası eklenmez. Karantina/tehdit uyarısı varsa tam tehdit adı ve dosya özetiyle ayrıca incelenmelidir. Bu sürüm için "antivirüs onaylı" veya "kesin yanlış alarm düzeltildi" iddiası yoktur. SHA-256, dosya bütünlüğünü doğrular; güvenli olduğunu kanıtlamaz.
+
 ## ⚙️ Ayarlar
 
 Ayarlar `%LOCALAPPDATA%\Programs\AutoAcceptLite\app\config.json` dosyasındadır. Düzenledikten sonra tepsi menüsünden **Motoru yeniden başlat**'ı seçin.
@@ -191,7 +204,7 @@ Kurulum dosyası `packaging/windows/dist/` klasörüne yazılır. Derlemenin bek
 
 ### Testleri Çalıştırma
 ```powershell
-node test/i18n.test.js
+npm test
 ```
 
 ---
@@ -200,7 +213,8 @@ node test/i18n.test.js
 
 - **Günlükte "Antigravity bulunamadı":** Antigravity'yi açın; motor kendiliğinden bağlanır. `port` değerini elle verdiyseniz doğru olduğundan emin olun.
 - **Simge duruyor ama hiçbir şeye basılmıyor:** fareyi simgenin üzerine getirin. *duraklatıldı* ise **Devam et**'i, *motor durdu* ise **Motoru yeniden başlat**'ı seçip günlüğe bakın.
-- **Kısayola tıklayınca hiçbir şey olmuyor:** uygulama zaten çalışıyor olabilir; gizli simgeler okunun arkasına bakın.
+- **Kısayola tıklayınca hiçbir şey olmuyor:** başlangıçta günlük penceresi açılmalıdır. Açılmıyorsa Windows Güvenliği'nin Koruma geçmişinde engel/karantina kaydı olup olmadığına bakın ve tam uyarı metnini kaydedin. Uygulama zaten çalışıyorsa gizli simgeler okunun arkasına bakın.
+- **Uygulama dosyaları eksik:** tam kurulum paketini yeniden kurun veya taşınabilir ZIP'in tamamını çıkarın; tek başına launcher EXE yeterli değildir.
 - **Beklediğiniz bir komut çalıştırılmadı:** büyük olasılıkla güvenlik filtresine takıldı. Günlükte `ENGELLENDİ` satırı görünür ve düğme sayfada işaretlenir.
 
 ---

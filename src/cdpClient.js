@@ -42,9 +42,14 @@ class CdpSession {
         this.ws = new WebSocket(wsUrl, { maxPayload: 64 * 1024 * 1024 });
 
         this.ready = new Promise((resolve, reject) => {
-            const t = setTimeout(() => { this._kill(new Error(t('cdpConnectTimeout'))); reject(new Error(t('cdpConnectTimeout'))); }, 5000);
-            this.ws.on('open', () => { clearTimeout(t); resolve(); });
-            this.ws.on('error', (err) => { clearTimeout(t); this._kill(err); reject(err); });
+            const timer = setTimeout(() => {
+                const error = new Error(t('cdpConnectTimeout'));
+                reject(error);
+                this._kill(error);
+            }, 5000);
+            this.ws.once('open', () => { clearTimeout(timer); resolve(); });
+            this.ws.once('error', (err) => { clearTimeout(timer); this._kill(err); reject(err); });
+            this.ws.once('close', () => { clearTimeout(timer); reject(new Error(t('cdpClosed'))); });
         });
 
         this.ws.on('message', (raw) => {

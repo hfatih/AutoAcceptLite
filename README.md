@@ -65,7 +65,7 @@ It lives in the Windows notification area, talks to Antigravity only over its ow
 - **Sidebar guard:** short words such as `run` in a conversation title are never mistaken for a button.
 
 ### 🪟 A Proper Tray App
-- **No console window:** runs in the notification area with a status tooltip.
+- **Visible startup:** opens the log so you can see that it started. Close the log to leave it running in the notification area.
 - **Show log:** a live view of connections, clicks and blocks.
 - **Pause / Resume:** stop clicking without closing anything.
 - **Restart engine:** apply `config.json` changes in one click.
@@ -123,8 +123,14 @@ flowchart LR
 
 Running a newer installer over an existing installation upgrades it and keeps your `config.json`.
 
+**Portable:** download `AutoAcceptLite-Portable-1.1.4.zip`, extract the **entire** ZIP to a folder, then run `AutoAcceptLite.exe` inside it. Keep `app/` and `runtime/` next to the EXE. No separate Node.js installation is needed. A launcher EXE downloaded alone cannot work without these folders.
+
+**1.1.4:** fixes an engine crash on CDP connection timeout; opens the log at startup and after an unexpected engine failure; saves the last session for troubleshooting; adds a complete portable package and `SHA256SUMS.txt`. The installer no longer lists unrelated `node.exe` processes in its close-applications filter. Bundled runtime: official Node.js 22.23.4 x64.
+
 > [!NOTE]
-> The binaries are not signed with a trusted publisher certificate, so Windows SmartScreen or Smart App Control may warn or block them. Windows security settings are never changed by the installer.
+> The project EXEs are **unsigned**. SmartScreen reputation warnings and Smart App Control blocks may still occur; rebuilding or using the portable ZIP does not guarantee approval. See [Microsoft's explanation](https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/overview). No trusted code-signing certificate was available for this release. The installer does not change Windows security settings or add antivirus exclusions.
+>
+> A named antivirus detection or quarantine entry needs investigation using its exact threat name and file hash. This release is not advertised as antivirus-certified or as a confirmed false-positive fix. SHA-256 verifies file integrity, not safety.
 
 Task Manager shows the app as two rows: **AutoAccept Lite** (tray host) and **Node.js JavaScript Runtime** (engine).
 
@@ -191,7 +197,7 @@ The installer is written to `packaging/windows/dist/`. See [`packaging/windows/R
 
 ### Running Tests
 ```powershell
-node test/i18n.test.js
+npm test
 ```
 
 ---
@@ -200,7 +206,9 @@ node test/i18n.test.js
 
 - **"Antigravity not found" in the log:** open Antigravity; the engine connects on its own. If you set `port` manually, make sure it is the right one.
 - **The icon is there but nothing is clicked:** hover over the icon. *paused* means choose **Resume**; *engine stopped* means choose **Restart engine** and check the log.
-- **Nothing happens when the shortcut is clicked:** the app may already be running; look behind the hidden-icons arrow.
+- **Nothing happens when the shortcut is clicked:** the log should open on startup. If it does not, check Windows Security's Protection history for a block or quarantine entry and record the exact message. If already running, look behind the hidden-icons arrow.
+- **Missing application files:** reinstall the complete installer or extract the entire portable ZIP. Do not run the EXE from inside the ZIP.
+- **Diagnostics:** choose **Open log folder** from the tray menu. Logs are in `%LOCALAPPDATA%\AutoAcceptLite\logs`: `last-session.log` (last 1,000 lines, overwritten on exit/failure) and `launcher-error.log` (startup exceptions). For a package check without starting approvals, run `.\AutoAcceptLite.exe --check` and inspect its exit code (0 = modules loaded successfully).
 - **A command you expected was not run:** it probably matched the safety filter. The log shows a `BLOCKED` line and the button is marked in the page.
 
 ---
