@@ -130,6 +130,13 @@ Görev Yöneticisi'nde uygulama iki satır olarak görünür: **AutoAccept Lite*
 
 ---
 
+## 🛡️ 1.1.5: yanlış "Blocked by Filter" düzeltmesi
+
+- Allow/Accept düğmelerinde yalnız düğmenin hemen yanındaki kod bloğu denetlenir; önceki mesajlardaki örnek kodlar (`sudo su`, `drop table`...) artık onları kilitlemez.
+- Retry/Continue artık filtreye girmez (komut çalıştırmazlar).
+- Günlük, hangi kalıbın hangi komutu engellediğini yazar.
+- `Run` her zaman en yakın komutla denetlenmeye devam eder.
+
 ## 📦 1.1.4 sürümü ve taşınabilir paket
 
 - CDP bağlantısı zaman aşımına uğradığında motoru düşüren hata düzeltildi.
@@ -137,7 +144,7 @@ Görev Yöneticisi'nde uygulama iki satır olarak görünür: **AutoAccept Lite*
 - Kurulumun uygulama kapatma filtresinden genel `node.exe` adı çıkarıldı.
 - Resmi Node.js 22.23.4 x64 içeren eksiksiz taşınabilir ZIP ve `SHA256SUMS.txt` eklendi.
 
-**Taşınabilir kullanım:** son sürümden `AutoAcceptLite-Portable-1.1.4.zip` dosyasını indirin, **tamamını** bir klasöre çıkarın ve içindeki `AutoAcceptLite.exe` dosyasını çalıştırın. `app/` ve `runtime/` klasörleri EXE'nin yanında kalmalıdır. ZIP'in içinden veya tek başına indirilen launcher EXE ile çalıştırmayın. Ayrıca Node.js kurmanız gerekmez.
+**Taşınabilir kullanım:** son sürümden `AutoAcceptLite-Portable-1.1.5.zip` dosyasını indirin, **tamamını** bir klasöre çıkarın ve içindeki `AutoAcceptLite.exe` dosyasını çalıştırın. `app/` ve `runtime/` klasörleri EXE'nin yanında kalmalıdır. ZIP'in içinden veya tek başına indirilen launcher EXE ile çalıştırmayın. Ayrıca Node.js kurmanız gerekmez.
 
 **Günlükler:** tepsi menüsündeki **Günlük klasörünü aç** seçeneğini kullanın. `%LOCALAPPDATA%\AutoAcceptLite\logs` altında `last-session.log` son 1.000 satırı (çıkışta/hata durumunda üzerine yazılır), `launcher-error.log` başlangıç hatalarını tutar. Onay motorunu başlatmadan paket kontrolü için `.\AutoAcceptLite.exe --check` çalıştırın; çıkış kodu 0, modüllerin yüklendiğini gösterir.
 

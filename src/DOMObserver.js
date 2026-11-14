@@ -296,27 +296,49 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
         for (var i = 0; i < keys.length; i++) { if (now - clickCooldowns[keys[i]] > maxAge) { delete clickCooldowns[keys[i]]; } }
     }
 
-    function extractCommandText(btn) {
+    // Kod ile dugme arasindaki metin bundan uzunsa kod baska bir mesaja aittir.
+    var ADJACENT_TEXT_MAX = 200;
+
+    // strict=false (Allow/Accept vb.): kod dugmenin hemen yaninda degilse komut yok sayilir.
+    // "Run" icin strict=true: en yakin kod her zaman denetlenir, guvenlik gevsemez.
+    function extractCommandText(btn, strict) {
         try {
             var el = btn;
             for (var i = 0; i < 8 && el && el !== document.body; i++) {
                 el = el.parentElement; if (!el) break;
                 var codes = el.querySelectorAll('pre, code');
                 if (codes.length > 0) {
-                    var allText = '';
-                    for (var j = 0; j < codes.length; j++) { allText += ' ' + (codes[j].textContent || '').trim(); }
-                    return allText.trim();
+                    // Yalniz dugmeye en yakin kod blogu (dugmeden onceki son blok) denetlenir.
+                    // Eskiden bulunan atadaki TUM kodlar birlestiriliyordu; kod icermeyen bir
+                    // "Allow" karti sohbet listesine kadar cikinca onceki mesajlardaki ornek
+                    // kodlar (sudo su, drop table...) yuzunden yanlis "Blocked by Filter" oluyordu.
+                    var pick = codes[0];
+                    for (var j = 0; j < codes.length; j++) {
+                        if (codes[j].compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING) pick = codes[j];
+                        else break;
+                    }
+                    var pre = pick.closest('pre');
+                    if (pre && el.contains(pre)) pick = pre;
+                    if (!strict) {
+                        var gap = document.createRange();
+                        if (pick.compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING) { gap.setStartAfter(pick); gap.setEndBefore(btn); }
+                        else { gap.setStartAfter(btn); gap.setEndBefore(pick); }
+                        if (gap.toString().replace(/\\s+/g, '').length > ADJACENT_TEXT_MAX) return null;
+                    }
+                    return (pick.textContent || '').trim();
                 }
             }
         } catch (e) { } return null;
     }
 
-    function isCommandAllowed(commandText) {
+    // null = izinli; metin = engelleme sebebi (gunluge yazilir, kullanici neden engellendigini gorur).
+    function blockReason(commandText) {
         var blockedList = window.__AA_BLOCKED || BLOCKED_COMMANDS;
         var allowedList = window.__AA_ALLOWED || ALLOWED_COMMANDS;
         var hasFilters = window.__AA_HAS_FILTERS !== undefined ? window.__AA_HAS_FILTERS : HAS_FILTERS;
-        if (!hasFilters) return true;
-        if (!commandText) return false; 
+        if (!hasFilters) return null;
+        if (!commandText) return 'empty command';
+        var snippet = commandText.replace(/\\s+/g, ' ').substring(0, 120);
 
         var cmdLower = commandText.toLowerCase();
 
@@ -332,13 +354,13 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
             return false;
         }
 
-        for (var b = 0; b < blockedList.length; b++) { if (matchesPattern(cmdLower, blockedList[b])) { return false; } }
+        for (var b = 0; b < blockedList.length; b++) { if (matchesPattern(cmdLower, blockedList[b])) { return '"' + blockedList[b] + '" :: ' + snippet; } }
         if (allowedList.length > 0) {
             var allowed = false;
             for (var a = 0; a < allowedList.length; a++) { if (matchesPattern(cmdLower, allowedList[a])) { allowed = true; break; } }
-            if (!allowed) return false;
+            if (!allowed) return 'allowedCommands :: ' + snippet;
         }
-        return true;
+        return null;
     }
 
     function scanAndClick() {
@@ -368,11 +390,14 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
                 continue;
             }
 
-            if (currentHasFilters && !isExpandBtn) {
-                var cmdText = extractCommandText(btn);
+            var isRecovery = matchedText === 'retry' || matchedText === 'continue';
+            // Retry/Continue komut calistirmaz; yakindaki koda bakip engellemek yanlis alarm uretir.
+            if (currentHasFilters && !isExpandBtn && !isRecovery) {
+                var cmdText = extractCommandText(btn, matchedText === 'run');
                 if (cmdText !== null) {
-                    if (!isCommandAllowed(cmdText)) {
-                        btn.setAttribute('data-aa-blocked', 'true');
+                    var reason = blockReason(cmdText);
+                    if (reason) {
+                        btn.setAttribute('data-aa-blocked', reason);
                         btn.style.cssText += ';background:#4a1c1c !important;opacity:0.6;cursor:not-allowed;';
                         btn.textContent = '\uD83D\uDEAB Blocked by Filter';
                         var blockKey = _domPath(btn) + ':' + (btn.textContent || '').trim().toLowerCase().substring(0, 30);
@@ -382,7 +407,6 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
                 }
             }
 
-            var isRecovery = matchedText === 'retry' || matchedText === 'continue';
             if (isRecovery) {
                 window.__AA_RECOVERY_TS = window.__AA_RECOVERY_TS || []; var now = Date.now();
                 window.__AA_RECOVERY_TS = window.__AA_RECOVERY_TS.filter(function(ts) { return now - ts < 60000; });

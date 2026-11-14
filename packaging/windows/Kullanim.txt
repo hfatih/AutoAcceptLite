@@ -1,4 +1,4 @@
-﻿AutoAccept Lite 1.1.4 - Windows x64
+﻿AutoAccept Lite 1.1.5 - Windows x64
 (English below)
 
 Kurulumdan sonra Antigravity'yi açın, ardından masaüstü kısayoluyla
@@ -81,6 +81,10 @@ certificate. Devices with Smart App Control may block them; that does not
 prove the app is harmful. Windows security settings are never changed
 automatically.
 
+
+1.1.5 - Güvenlik filtresi / Safety filter
+Allow/Accept yalnız yanındaki kodla denetlenir; Retry/Continue filtrelenmez; günlük engelleme sebebini yazar.
+Allow/Accept are checked only against adjacent code; Retry/Continue are not filtered; the log shows why a command was blocked.
 
 1.1.4 - Portable / Taşınabilir
 ZIP dosyasının tamamını çıkarın; app ve runtime klasörlerini EXE yanında tutun.

@@ -14,8 +14,8 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("AutoAccept Lite")]
 [assembly: AssemblyDescription("AutoAccept Lite tray application")]
 [assembly: AssemblyProduct("AutoAccept Lite")]
-[assembly: AssemblyVersion("1.1.4.0")]
-[assembly: AssemblyFileVersion("1.1.4.0")]
+[assembly: AssemblyVersion("1.1.5.0")]
+[assembly: AssemblyFileVersion("1.1.5.0")]
 
 // Arayuz dili: app\config.json icindeki "language" ("tr" / "en") motorla ayni sekilde once gelir;
 // yoksa ya da "auto" ise Windows goruntuleme diline bakilir (Turkce ise Turkce, degilse Ingilizce).

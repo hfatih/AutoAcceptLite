@@ -123,7 +123,9 @@ flowchart LR
 
 Running a newer installer over an existing installation upgrades it and keeps your `config.json`.
 
-**Portable:** download `AutoAcceptLite-Portable-1.1.4.zip`, extract the **entire** ZIP to a folder, then run `AutoAcceptLite.exe` inside it. Keep `app/` and `runtime/` next to the EXE. No separate Node.js installation is needed. A launcher EXE downloaded alone cannot work without these folders.
+**Portable:** download `AutoAcceptLite-Portable-1.1.5.zip`, extract the **entire** ZIP to a folder, then run `AutoAcceptLite.exe` inside it. Keep `app/` and `runtime/` next to the EXE. No separate Node.js installation is needed. A launcher EXE downloaded alone cannot work without these folders.
+
+**1.1.5:** fixes false `Blocked by Filter` on Allow/Accept buttons: only the code block right next to the button is checked, so example code in earlier messages no longer blocks them. Retry/Continue are no longer filtered (they run no command). The log now shows which pattern blocked which command. `Run` is still always checked against its nearest command.
 
 **1.1.4:** fixes an engine crash on CDP connection timeout; opens the log at startup and after an unexpected engine failure; saves the last session for troubleshooting; adds a complete portable package and `SHA256SUMS.txt`. The installer no longer lists unrelated `node.exe` processes in its close-applications filter. Bundled runtime: official Node.js 22.23.4 x64.
 

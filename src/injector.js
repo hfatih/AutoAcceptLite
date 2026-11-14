@@ -52,7 +52,10 @@ const DRAIN_EXPR = `(function(){
     return JSON.stringify({
         clicks: log,
         total: window.__AA_CLICK_COUNT || 0,
-        blocked: document.querySelectorAll('[data-aa-blocked]').length
+        blocked: document.querySelectorAll('[data-aa-blocked]').length,
+        reasons: Array.prototype.map.call(document.querySelectorAll('[data-aa-blocked]'), function(b) {
+            return b.getAttribute('data-aa-blocked');
+        })
     });
 })()`;
 
@@ -353,6 +356,10 @@ class Injector {
         if (data.blocked > 0 && data.blocked !== entry.lastBlocked) {
             entry.lastBlocked = data.blocked;
             this.log(t('blocked', data.blocked, entry.title), 'block');
+            // Hangi kalip hangi komutta yakaladi: yanlis alarm mi gercek mi, kullanici gorsun.
+            for (const r of data.reasons || []) {
+                if (r && r !== 'true') this.log(t('blockedReason', r), 'block');
+            }
         }
         return { clicks: (data.clicks || []).length, blocked: data.blocked || 0 };
     }
