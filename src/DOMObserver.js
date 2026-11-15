@@ -299,36 +299,48 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
     // Kod ile dugme arasindaki metin bundan uzunsa kod baska bir mesaja aittir.
     var ADJACENT_TEXT_MAX = 200;
 
-    // strict=false (Allow/Accept vb.): kod dugmenin hemen yaninda degilse komut yok sayilir.
-    // "Run" icin strict=true: en yakin kod her zaman denetlenir, guvenlik gevsemez.
+    function _nonWs(s) { return (s || '').replace(/\\s+/g, '').length; }
+
+    // Dugmenin komutu sayilan kod bloklarini birlestirir.
+    // - Dugmenin kendi karti (ilk iki ata): icindeki TUM kod bloklari denetlenir.
+    // - Daha yukarida: yalniz dugmeden ONCEKI ve aralarinda en fazla ADJACENT_TEXT_MAX
+    //   karakter duz metin bulunan bitisik bloklar. Eskiden bulunan atadaki tum kodlar
+    //   birlestiriliyordu; kodsuz bir "Allow" karti sohbet listesine kadar cikinca onceki
+    //   mesajlardaki ornek kodlar (sudo su, drop table...) yanlis engelleme uretiyordu.
+    // - strict ("Run"): bitisik blok yoksa en yakin onceki blok yine denetlenir.
+    // Hata olursa '' doner; blockReason bunu engeller (fail-closed).
     function extractCommandText(btn, strict) {
         try {
             var el = btn;
             for (var i = 0; i < 8 && el && el !== document.body; i++) {
                 el = el.parentElement; if (!el) break;
-                var codes = el.querySelectorAll('pre, code');
-                if (codes.length > 0) {
-                    // Yalniz dugmeye en yakin kod blogu (dugmeden onceki son blok) denetlenir.
-                    // Eskiden bulunan atadaki TUM kodlar birlestiriliyordu; kod icermeyen bir
-                    // "Allow" karti sohbet listesine kadar cikinca onceki mesajlardaki ornek
-                    // kodlar (sudo su, drop table...) yuzunden yanlis "Blocked by Filter" oluyordu.
-                    var pick = codes[0];
-                    for (var j = 0; j < codes.length; j++) {
-                        if (codes[j].compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING) pick = codes[j];
-                        else break;
-                    }
-                    var pre = pick.closest('pre');
-                    if (pre && el.contains(pre)) pick = pre;
-                    if (!strict) {
-                        var gap = document.createRange();
-                        if (pick.compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING) { gap.setStartAfter(pick); gap.setEndBefore(btn); }
-                        else { gap.setStartAfter(btn); gap.setEndBefore(pick); }
-                        if (gap.toString().replace(/\\s+/g, '').length > ADJACENT_TEXT_MAX) return null;
-                    }
-                    return (pick.textContent || '').trim();
+                var all = el.querySelectorAll('pre, code');
+                if (all.length === 0) continue;
+                var before = [], after = [];
+                for (var k = 0; k < all.length; k++) {
+                    var outer = all[k].parentElement && all[k].parentElement.closest('pre, code');
+                    if ((outer && el.contains(outer)) || all[k].contains(btn)) continue;
+                    if (all[k].compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING) before.unshift(all[k]);
+                    else after.push(all[k]);
                 }
+                var picked = [];
+                if (i <= 1) {
+                    picked = before.concat(after);
+                } else {
+                    var codeChars = 0;
+                    for (var m = 0; m < before.length; m++) {
+                        var r = document.createRange();
+                        r.setStartAfter(before[m]); r.setEndBefore(btn);
+                        if (_nonWs(r.toString()) - codeChars > ADJACENT_TEXT_MAX) break;
+                        picked.push(before[m]); codeChars += _nonWs(before[m].textContent);
+                    }
+                    if (picked.length === 0 && strict) picked.push(before[0] || after[0]);
+                }
+                if (picked.length === 0) return null;
+                return picked.map(function(c) { return (c.textContent || '').trim(); }).join(' ').trim();
             }
-        } catch (e) { } return null;
+        } catch (e) { return ''; }
+        return null;
     }
 
     // null = izinli; metin = engelleme sebebi (gunluge yazilir, kullanici neden engellendigini gorur).
