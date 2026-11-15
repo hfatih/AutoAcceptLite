@@ -403,6 +403,9 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
             }
 
             var isRecovery = matchedText === 'retry' || matchedText === 'continue';
+            // Motor bu sayfada Retry dongusu gordu (Retry sayfayi yeniden yukleyip sayaci
+            // sifirliyor); susturma motor tarafinda tutulur ve her kurulumda yeniden yazilir.
+            if (isRecovery && window.__AA_RECOVERY_MUTED) continue;
             // Retry/Continue komut calistirmaz; yakindaki koda bakip engellemek yanlis alarm uretir.
             if (currentHasFilters && !isExpandBtn && !isRecovery) {
                 var cmdText = extractCommandText(btn, matchedText === 'run');

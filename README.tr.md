@@ -130,6 +130,12 @@ Görev Yöneticisi'nde uygulama iki satır olarak görünür: **AutoAccept Lite*
 
 ---
 
+## 🔁 1.1.7: Retry döngüsü düzeltmesi
+
+- Retry sayfayı yeniden yüklüyorsa (ör. "The Android CLI is not installed" diyen Android CLI eklenti panelleri) artık 2 saniyede bir basılmaz.
+- Dakikada 3 deneme sınırı sayfa yerine motorda, pencere başına tutulur; yeniden yükleme sayacı sıfırlamaz.
+- 60 sn içinde 3 Retry/Continue olursa o pencerede 10 dakika basılmaz; günlük bunu yazar.
+
 ## 🛡️ 1.1.6: filtre sıkılaştırması
 
 - Düğmenin kendi kartındaki tüm kod blokları yeniden denetlenir (yalnız en yakını değil).
@@ -150,7 +156,7 @@ Görev Yöneticisi'nde uygulama iki satır olarak görünür: **AutoAccept Lite*
 - Kurulumun uygulama kapatma filtresinden genel `node.exe` adı çıkarıldı.
 - Resmi Node.js 22.23.4 x64 içeren eksiksiz taşınabilir ZIP ve `SHA256SUMS.txt` eklendi.
 
-**Taşınabilir kullanım:** son sürümden `AutoAcceptLite-Portable-1.1.6.zip` dosyasını indirin, **tamamını** bir klasöre çıkarın ve içindeki `AutoAcceptLite.exe` dosyasını çalıştırın. `app/` ve `runtime/` klasörleri EXE'nin yanında kalmalıdır. ZIP'in içinden veya tek başına indirilen launcher EXE ile çalıştırmayın. Ayrıca Node.js kurmanız gerekmez.
+**Taşınabilir kullanım:** son sürümden `AutoAcceptLite-Portable-1.1.7.zip` dosyasını indirin, **tamamını** bir klasöre çıkarın ve içindeki `AutoAcceptLite.exe` dosyasını çalıştırın. `app/` ve `runtime/` klasörleri EXE'nin yanında kalmalıdır. ZIP'in içinden veya tek başına indirilen launcher EXE ile çalıştırmayın. Ayrıca Node.js kurmanız gerekmez.
 
 **Günlükler:** tepsi menüsündeki **Günlük klasörünü aç** seçeneğini kullanın. `%LOCALAPPDATA%\AutoAcceptLite\logs` altında `last-session.log` son 1.000 satırı (çıkışta/hata durumunda üzerine yazılır), `launcher-error.log` başlangıç hatalarını tutar. Onay motorunu başlatmadan paket kontrolü için `.\AutoAcceptLite.exe --check` çalıştırın; çıkış kodu 0, modüllerin yüklendiğini gösterir.
 

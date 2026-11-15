@@ -296,6 +296,8 @@ class Injector {
                 // Bekci gozlemciden ONCE kurulur: gozlemcinin kurulum sirasindaki
                 // `window.__AA_PAUSED = false` atamasi bekcinin setter'ina dusmeli.
                 await entry.session.evaluate(this.watchdogScript, 5000);
+                // Susturma gozlemciden ONCE yazilir: kurulur kurulmaz Retry'a basmasin.
+                await entry.session.evaluate(`window.__AA_RECOVERY_MUTED = ${this._recoveryMuted(entry)}; "ok"`, 3000);
                 const res = await entry.session.evaluate(this.script, 15000);
                 await entry.session.evaluate(`window.__AA_SCRIPT_ID = ${JSON.stringify(this.scriptId)}; "ok"`, 3000);
                 if (this.paused) await entry.session.evaluate('window.__AA_PAUSED = true; "ok"', 3000);
@@ -304,6 +306,10 @@ class Injector {
             }
             // Kalp atisi: bu tazeleme kesilirse sayfadaki bekci gozlemciyi soker.
             await entry.session.evaluate(HEARTBEAT_EXPR, 3000);
+            if (entry.recoveryMutedUntil && !this._recoveryMuted(entry)) {
+                entry.recoveryMutedUntil = 0;
+                await entry.session.evaluate('window.__AA_RECOVERY_MUTED = false; "ok"', 3000);
+            }
             // Durtme: ekranda bekleyen ikinci/ucuncu dugmeler de taransin.
             if (!this.paused) await entry.session.evaluate(PULSE_EXPR, 3000);
             const scan = await this._drain(entry);
@@ -352,6 +358,7 @@ class Injector {
         for (const c of data.clicks || []) {
             this.totalClicks++;
             this.log(t('clicked', c.text, entry.title), 'click');
+            if (c.text === 'retry' || c.text === 'continue') await this._countRecovery(entry);
         }
         if (data.blocked > 0 && data.blocked !== entry.lastBlocked) {
             entry.lastBlocked = data.blocked;
@@ -362,6 +369,28 @@ class Injector {
             }
         }
         return { clicks: (data.clicks || []).length, blocked: data.blocked || 0 };
+    }
+
+    /**
+     * Sayfadaki devre kesici (dakikada 3 Retry) sayfa yeniden yuklenince sifirlanir.
+     * Retry'in kendisi sayfayi yeniden yukluyorsa (or. "Android CLI is not installed"
+     * eklenti sayfalari) her 2 saniyede bir basilir. Sayac bu yuzden hedef basina
+     * motorda tutulur; 60 sn icinde 3 Retry/Continue olursa o hedefte 10 dakika susulur.
+     * Hedef kimligi yeniden yuklemede degismez; susturma kurulumda tekrar yazilir.
+     */
+    async _countRecovery(entry) {
+        const now = Date.now();
+        entry.recoveryTs = (entry.recoveryTs || []).filter((ts) => now - ts < 60000);
+        entry.recoveryTs.push(now);
+        if (entry.recoveryTs.length < 3 || this._recoveryMuted(entry)) return;
+        entry.recoveryMutedUntil = now + 10 * 60 * 1000;
+        entry.recoveryTs = [];
+        this.log(t('recoveryMuted', entry.title), 'warn');
+        try { await entry.session.evaluate('window.__AA_RECOVERY_MUTED = true; "ok"', 3000); } catch (e) { /* kurulumda yazilir */ }
+    }
+
+    _recoveryMuted(entry) {
+        return (entry.recoveryMutedUntil || 0) > Date.now();
     }
 
     /** Yeni SPA arayuzunde calisan sohbetler arasinda bir sonraki sohbete gecer. */

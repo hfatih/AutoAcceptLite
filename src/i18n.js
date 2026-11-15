@@ -35,6 +35,7 @@ const MESSAGES = {
     observerReplied:  ['Gözlemci yanıt verdi "{0}" → {1}', 'Observer replied "{0}" → {1}'],
     clicked:          ['TIKLANDI  "{0}"  →  {1}', 'CLICKED  "{0}"  →  {1}'],
     blocked:          ['ENGELLENDİ  {0} komut güvenlik filtresine takıldı → {1}', 'BLOCKED  {0} command(s) stopped by the safety filter → {1}'],
+    recoveryMuted:    ['Retry döngüsü: dakikada 3+ yeniden deneme → {0} — burada Retry/Continue 10 dk basılmayacak', 'Retry loop: 3+ retries per minute → {0} — Retry/Continue paused here for 10 min'],
     blockedReason:    ['   sebep: {0}', '   reason: {0}'],
     activeChat:     ['AKTİF SOHBET → {0}  ({1} çalışan)', 'ACTIVE CHAT → {0}  ({1} running)'],
     keepActiveFailed: ['Arka planda uyanık tutma açılamadı ({0}) — Antigravity gizliyken tıklamalar gecikebilir.', 'Could not enable keep-active ({0}) — clicks may lag while Antigravity is hidden.'],

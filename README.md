@@ -123,7 +123,9 @@ flowchart LR
 
 Running a newer installer over an existing installation upgrades it and keeps your `config.json`.
 
-**Portable:** download `AutoAcceptLite-Portable-1.1.6.zip`, extract the **entire** ZIP to a folder, then run `AutoAcceptLite.exe` inside it. Keep `app/` and `runtime/` next to the EXE. No separate Node.js installation is needed. A launcher EXE downloaded alone cannot work without these folders.
+**Portable:** download `AutoAcceptLite-Portable-1.1.7.zip`, extract the **entire** ZIP to a folder, then run `AutoAcceptLite.exe` inside it. Keep `app/` and `runtime/` next to the EXE. No separate Node.js installation is needed. A launcher EXE downloaded alone cannot work without these folders.
+
+**1.1.7:** stops endless Retry clicking on pages where Retry reloads the page (e.g. Android CLI plugin panels showing "The Android CLI is not installed"). The 3-per-minute circuit breaker now lives in the engine per window, so a reload no longer resets it; after 3 Retry/Continue clicks in 60 s that window is paused for 10 minutes and the log says so.
 
 **1.1.6:** tightens the 1.1.5 filter change: every code block in the button's own card is checked again (not only the nearest one); outside the card, all adjacent blocks before the button are checked together; an extraction error now blocks the click instead of allowing it.
 
