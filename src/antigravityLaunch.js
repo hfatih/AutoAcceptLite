@@ -17,19 +17,29 @@ const POWERSHELL = path.join(process.env.SystemRoot || 'C:\\Windows',
 const FLAG = '--remote-debugging-port=0';
 
 /**
- * Kullanici/ortak Baslat menusu, masaustu ve gorev cubugu sabitlerindeki
- * `Antigravity.exe` kisayollarina bayragi ekler (Antigravity IDE'ye dokunmaz).
- * Bayrak zaten varsa kisayol degismez; yazilamayan (yonetici gerektiren)
- * kisayol sessizce atlanir. Ciktisi degistirilen kisayol yollaridir.
+ * Yalniz GECERLI KULLANICININ Baslat menusu, masaustu ve gorev cubugu
+ * sabitlerindeki `Antigravity.exe` kisayollarini gezen betigi uretir.
+ * Tum kullanicilarin ortak kisayollarina (ProgramData, Public) bilerek
+ * dokunulmaz: CDP portu baska bir Windows hesabinda acilmamali.
+ * Antigravity IDE'nin kisayollari da atlanir. Ciktisi degistirilen
+ * kisayollarin yollaridir; yazilamayan kisayol sessizce atlanir.
+ * @param {'add'|'remove'} mode 'add' bayragi ekler (varsa dokunmaz),
+ *   'remove' yalniz tam `--remote-debugging-port=0` parcasini siler.
+ * @returns {string} PowerShell betigi
  */
-const PATCH_PS = `
+function shortcutScript(mode) {
+    const change = mode === 'add'
+        ? `if ($l.Arguments -match '--remote-debugging-port') { return }
+    $l.Arguments = ($l.Arguments + ' ${FLAG}').Trim()`
+        : `$new = ($l.Arguments -replace '(^|\\s)${FLAG}(?=\\s|$)', '').Trim()
+    if ($new -eq $l.Arguments) { return }
+    $l.Arguments = $new`;
+    return `
 $ErrorActionPreference = 'SilentlyContinue'
 $sh = New-Object -ComObject WScript.Shell
 $dirs = @(
   [Environment]::GetFolderPath('Programs'),
-  [Environment]::GetFolderPath('CommonPrograms'),
   [Environment]::GetFolderPath('DesktopDirectory'),
-  [Environment]::GetFolderPath('CommonDesktopDirectory'),
   (Join-Path $env:APPDATA 'Microsoft\\Internet Explorer\\Quick Launch\\User Pinned')
 )
 foreach ($d in $dirs) {
@@ -37,11 +47,11 @@ foreach ($d in $dirs) {
   Get-ChildItem -LiteralPath $d -Recurse -Filter *.lnk | ForEach-Object {
     $l = $sh.CreateShortcut($_.FullName)
     if ([IO.Path]::GetFileName($l.TargetPath) -ne 'Antigravity.exe') { return }
-    if ($l.Arguments -match '--remote-debugging-port') { return }
-    $l.Arguments = ($l.Arguments + ' ${FLAG}').Trim()
+    ${change}
     try { $l.Save(); $_.FullName } catch { }
   }
 }`;
+}
 
 /**
  * Ana (tarayici) Antigravity surecinin komut satirini yazar. Ana surec,
@@ -77,7 +87,18 @@ function runPs(script) {
  */
 async function ensureShortcutFlag() {
     if (process.platform !== 'win32') return [];
-    return runPs(PATCH_PS);
+    return runPs(shortcutScript('add'));
+}
+
+/**
+ * Kaldirma sirasinda calisir: kisayollardaki `--remote-debugging-port=0`
+ * parcasini siler ve Antigravity'yi eski haline birakir. Kullanicinin elle
+ * verdigi baska bir port (`=9222` gibi) korunur. Windows disinda bir sey yapmaz.
+ * @returns {Promise<string[]>} bayragi kaldirilan kisayollarin yollari
+ */
+async function removeShortcutFlag() {
+    if (process.platform !== 'win32') return [];
+    return runPs(shortcutScript('remove'));
 }
 
 /**
@@ -94,4 +115,4 @@ async function antigravityDebugState() {
     return lines.some((l) => l.includes('--remote-debugging-port')) ? 'flagged' : 'noFlag';
 }
 
-module.exports = { ensureShortcutFlag, antigravityDebugState, FLAG };
+module.exports = { ensureShortcutFlag, removeShortcutFlag, antigravityDebugState, FLAG };

@@ -1,4 +1,4 @@
-﻿AutoAccept Lite 1.1.8 - Windows x64
+﻿AutoAccept Lite 1.1.9 - Windows x64
 (English below)
 
 Kurulumdan sonra Antigravity'yi açın, ardından masaüstü kısayoluyla
@@ -81,6 +81,10 @@ certificate. Devices with Smart App Control may block them; that does not
 prove the app is harmful. Windows security settings are never changed
 automatically.
 
+
+1.1.9 - Güvenli kısayol / Safer shortcuts
+Bayrak yalnız sizin kısayollarınıza eklenir; kaldırınca geri alınır.
+The flag is added only to your own shortcuts and removed on uninstall.
 
 1.1.8 - Antigravity 44.9.1 bağlantısı / connection
 Antigravity artık hata ayıklama portunu kendisi açmıyor; kısayollarına --remote-debugging-port=0 eklenir, Antigravity'yi bir kez kapatıp kısayoldan açın.

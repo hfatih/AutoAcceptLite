@@ -132,8 +132,13 @@ async function main() {
     }
 }
 
-// Load the engine modules and configuration without opening a CDP connection.
-if (process.argv.includes('--check')) {
+if (process.argv.includes('--remove-shortcut-flag')) {
+    // Called by the uninstaller: take --remote-debugging-port=0 back out of the
+    // Antigravity shortcuts so the app returns to how it was before install.
+    require('./src/antigravityLaunch').removeShortcutFlag()
+        .then((files) => { for (const f of files) console.log(f); });
+} else if (process.argv.includes('--check')) {
+    // Load the engine modules and configuration without opening a CDP connection.
     loadConfig(__dirname);
     console.log(`AutoAccept Lite ${require('./package.json').version}: OK`);
 } else {

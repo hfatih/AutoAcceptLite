@@ -130,14 +130,20 @@ Görev Yöneticisi'nde uygulama iki satır olarak görünür: **AutoAccept Lite*
 
 ---
 
+## 🔒 1.1.9: daha güvenli kısayol ayarı
+
+- Bayrak artık yalnız **sizin** Başlat menüsü, masaüstü ve görev çubuğu kısayollarınıza eklenir. Tüm Windows kullanıcılarının ortak kısayollarına dokunulmaz; hata ayıklama portu başka hesaplar için açılmaz.
+- AutoAccept Lite kaldırılınca `--remote-debugging-port=0` bu kısayollardan geri alınır, Antigravity eski haline döner.
+- Kendi verdiğiniz bir port (ör. `--remote-debugging-port=9222`) korunur.
+
 ## 🔌 1.1.8: Antigravity 44.9.1 bağlantı düzeltmesi
 
 **Ne oldu:** Antigravity 44.9.1 güncellemesinden sonra AutoAccept Lite Antigravity'yi bulamaz oldu. Antigravity eskiden hata ayıklama (CDP) portunu kendiliğinden açıyordu ve AutoAccept Lite düğmelere bu porttan basıyordu. 44.9.1 ile bu port artık yalnız Antigravity `--remote-debugging-port` ayarıyla başlatılırsa açılıyor.
 
-**Ne yaptık:** AutoAccept Lite her açılışta Antigravity'nin Başlat menüsü, masaüstü ve görev çubuğu kısayollarına `--remote-debugging-port=0` ekler. `0`, Antigravity'nin boş bir yerel port seçmesi demektir; port yalnız `127.0.0.1` üzerinde açılır. Antigravity ayarsız açılmışsa günlük bunu söyler ve ne yapmanız gerektiğini yazar.
+**Ne yaptık:** AutoAccept Lite her açılışta sizin Antigravity Başlat menüsü, masaüstü ve görev çubuğu kısayollarınıza `--remote-debugging-port=0` ekler. `0`, Antigravity'nin boş bir yerel port seçmesi demektir; port yalnız `127.0.0.1` üzerinde açılır. Antigravity ayarsız açılmışsa günlük bunu söyler ve ne yapmanız gerektiğini yazar.
 
 **Siz ne yapacaksınız:**
-1. AutoAccept Lite 1.1.8'i kurun ve bir kez başlatın; kısayollar güncellenir.
+1. AutoAccept Lite'ın son sürümünü kurun ve bir kez başlatın; kısayollar güncellenir.
 2. Antigravity'yi tepsideki simgesi dahil tamamen kapatın.
 3. Antigravity'yi **Başlat menüsündeki kısayoldan** açın. Günlükte `Bağlandı: 127.0.0.1:…` satırını görünce iş tamamdır.
 

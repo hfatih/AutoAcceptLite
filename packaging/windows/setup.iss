@@ -60,6 +60,10 @@ Name: "{userdesktop}\AutoAccept Lite"; Filename: "{app}\AutoAcceptLite.exe"; Wor
 [Run]
 Filename: "{app}\AutoAcceptLite.exe"; Description: "{cm:LaunchApp}"; Flags: nowait postinstall skipifsilent unchecked
 
+[UninstallRun]
+; Take the --remote-debugging-port=0 flag back out of the user's Antigravity shortcuts.
+Filename: "{app}\runtime\node.exe"; Parameters: """{app}\app\index.js"" --remove-shortcut-flag"; Flags: runhidden waituntilterminated; RunOnceId: "RemoveAntigravityFlag"
+
 [Messages]
 turkish.WelcomeLabel2=Antigravity için otomatik onay aracı bilgisayarınıza kurulacak.%n%nNode.js ve gerekli bağımlılıklar pakete dahildir. Ayrı bir Node.js kurulumu gerekmez.
 turkish.FinishedLabel=AutoAccept Lite kurulumu tamamlandı.%n%nAntigravity'yi açın, ardından AutoAccept Lite masaüstü kısayolunu kullanın. Başlangıçta günlük penceresi açılır; kapatınca uygulama bildirim alanında çalışmayı sürdürür.
