@@ -107,7 +107,7 @@ flowchart LR
     FILTER -.->|"engellendi → size kalır"| BTN
 ```
 
-1. **Bul.** Antigravity hata ayıklama portunu `%APPDATA%\Antigravity\DevToolsActivePort` dosyasına yazar. Motor bunu okur ve uç noktayı doğrular.
+1. **Bul.** `--remote-debugging-port=0` ile açılan Antigravity (motor bu bayrağı kısayollarına ekler) hata ayıklama portunu `%APPDATA%\Antigravity\DevToolsActivePort` dosyasına yazar. Motor bunu okur ve uç noktayı doğrular.
 2. **Enjekte et.** Her renderer penceresine bir bekçi ve sayfa değiştikçe eşleşen düğmeleri tarayan bir `MutationObserver` kurar.
 3. **Süz ve tıkla.** Gözlemci `Run` düğmesine basmadan önce yanındaki komutu okur, yasak ve izin listeleriyle karşılaştırır.
 4. **Canlı tut.** Motor kalp atışını tazeler, tıklama kaydını tepsiye aktarır ve Antigravity gizliyken sayfayı uyanık tutar.
@@ -118,7 +118,7 @@ flowchart LR
 
 1. [Son Sürüm](https://github.com/Hfatih/AutoAcceptLite/releases/latest) sayfasından `AutoAcceptLite-Kurulum-<sürüm>.exe` dosyasını indirin.
 2. Kurulumu çalıştırın. Yalnızca geçerli Windows kullanıcısına kurulur, yönetici izni istemez. Node.js pakete dahildir.
-3. **Antigravity**'yi açın, ardından kısayolundan **AutoAccept Lite**'ı başlatın.
+3. Önce **AutoAccept Lite**'ı başlatın; Antigravity kısayollarına gereken bayrağı ekler. Sonra **Antigravity**'yi Başlat menüsündeki kısayolundan açın (Antigravity zaten açıksa tepsiden de kapatıp yeniden açın, ayrıntı aşağıda 1.1.8 bölümünde).
 4. Bildirim alanındaki simgeyi bulun (gizli simgeler okunun arkasında olabilir). Fareyi üzerine getirince durumu görürsünüz.
 
 Yeni kurulum dosyasını mevcut kurulumun üzerine çalıştırmak uygulamayı günceller ve `config.json` dosyanızı korur.
@@ -129,6 +129,26 @@ Yeni kurulum dosyasını mevcut kurulumun üzerine çalıştırmak uygulamayı g
 Görev Yöneticisi'nde uygulama iki satır olarak görünür: **AutoAccept Lite** (tepsi başlatıcısı) ve **Node.js JavaScript Runtime** (motor).
 
 ---
+
+## 🔌 1.1.8: Antigravity 44.9.1 bağlantı düzeltmesi
+
+**Ne oldu:** Antigravity 44.9.1 güncellemesinden sonra AutoAccept Lite Antigravity'yi bulamaz oldu. Antigravity eskiden hata ayıklama (CDP) portunu kendiliğinden açıyordu ve AutoAccept Lite düğmelere bu porttan basıyordu. 44.9.1 ile bu port artık yalnız Antigravity `--remote-debugging-port` ayarıyla başlatılırsa açılıyor.
+
+**Ne yaptık:** AutoAccept Lite her açılışta Antigravity'nin Başlat menüsü, masaüstü ve görev çubuğu kısayollarına `--remote-debugging-port=0` ekler. `0`, Antigravity'nin boş bir yerel port seçmesi demektir; port yalnız `127.0.0.1` üzerinde açılır. Antigravity ayarsız açılmışsa günlük bunu söyler ve ne yapmanız gerektiğini yazar.
+
+**Siz ne yapacaksınız:**
+1. AutoAccept Lite 1.1.8'i kurun ve bir kez başlatın; kısayollar güncellenir.
+2. Antigravity'yi tepsideki simgesi dahil tamamen kapatın.
+3. Antigravity'yi **Başlat menüsündeki kısayoldan** açın. Günlükte `Bağlandı: 127.0.0.1:…` satırını görünce iş tamamdır.
+
+Kendi kısayolunuzu kullanıyorsanız ya da Antigravity'yi elle başlatıyorsanız aynı ayarı ekleyin:
+
+```text
+"%LOCALAPPDATA%\Programs\Antigravity\Antigravity.exe" --remote-debugging-port=0
+```
+
+> [!IMPORTANT]
+> Antigravity kendini otomatik güncellediğinde ayarsız yeniden açılır. Böyle olursa günlükte "hata ayıklama portu kapalı" uyarısı çıkar; Antigravity'yi bir kez kapatıp kısayoldan açmanız yeterli.
 
 ## 🔁 1.1.7: Retry döngüsü düzeltmesi
 
@@ -231,6 +251,7 @@ npm test
 ## 🩺 Sorun Giderme
 
 - **Günlükte "Antigravity bulunamadı":** Antigravity'yi açın; motor kendiliğinden bağlanır. `port` değerini elle verdiyseniz doğru olduğundan emin olun.
+- **Günlükte "hata ayıklama portu kapalı":** Antigravity 44.9.1'den beri portu yalnız `--remote-debugging-port` ile başlatılınca açıyor. AutoAccept Lite her açılışta Antigravity kısayollarına `--remote-debugging-port=0` ekler; Antigravity'yi tepsiden de tamamen kapatıp Başlat menüsünden açın. Antigravity'nin otomatik güncellemesi uygulamayı yeniden başlatırsa bir kez daha kısayoldan açın.
 - **Simge duruyor ama hiçbir şeye basılmıyor:** fareyi simgenin üzerine getirin. *duraklatıldı* ise **Devam et**'i, *motor durdu* ise **Motoru yeniden başlat**'ı seçip günlüğe bakın.
 - **Kısayola tıklayınca hiçbir şey olmuyor:** başlangıçta günlük penceresi açılmalıdır. Açılmıyorsa Windows Güvenliği'nin Koruma geçmişinde engel/karantina kaydı olup olmadığına bakın ve tam uyarı metnini kaydedin. Uygulama zaten çalışıyorsa gizli simgeler okunun arkasına bakın.
 - **Uygulama dosyaları eksik:** tam kurulum paketini yeniden kurun veya taşınabilir ZIP'in tamamını çıkarın; tek başına launcher EXE yeterli değildir.

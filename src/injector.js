@@ -4,6 +4,7 @@
 const crypto = require('crypto');
 const { listTargets, CdpSession } = require('./cdpClient');
 const { discoverPort } = require('./portDiscovery');
+const { ensureShortcutFlag, antigravityDebugState } = require('./antigravityLaunch');
 const { buildDOMObserverScript } = require('./DOMObserver');
 const { buildWatchdogScript, HEARTBEAT_EXPR, DISARM_EXPR } = require('./watchdog');
 const { t } = require('./i18n');
@@ -117,6 +118,8 @@ class Injector {
         this._timer = null;
         this._running = false;
         this._warnedOffline = false;
+        this._offlineState = null;   // son bildirilen Antigravity durumu
+        this._offlineCheckAt = 0;    // surec listesinin en erken yeniden okunacagi an
 
         this.script = buildDOMObserverScript(
             cfg.customButtonTexts,
@@ -143,6 +146,9 @@ class Injector {
     start() {
         if (this._running) return;
         this._running = true;
+        ensureShortcutFlag().then((patched) => {
+            for (const file of patched) this.log(t('shortcutPatched', file), 'ok');
+        });
         this._tick();
     }
 
@@ -179,6 +185,26 @@ class Injector {
         return this.paused;
     }
 
+    /**
+     * Port bulunamadiginda nedenini soyler: Antigravity kapali mi, yoksa CDP
+     * bayragi olmadan mi acilmis. Surec listesi en fazla 30 sn'de bir okunur;
+     * durum degisince (ornegin kullanici bayraksiz yeniden acti) uyari tekrarlanir.
+     */
+    async _reportOffline() {
+        if (Date.now() < this._offlineCheckAt) return;
+        this._offlineCheckAt = Date.now() + 30000;
+        const state = await antigravityDebugState();
+        if (this._warnedOffline && state === this._offlineState) return;
+        this._warnedOffline = true;
+        this._offlineState = state;
+        if (state === 'noFlag') {
+            this.log(t('debugPortOff'), 'warn');
+            this.log(t('debugPortOffHint'), 'dim');
+        } else {
+            this.log(t('notFound'), 'warn');
+        }
+    }
+
     async _tick() {
         if (!this._running) return;
         try { await this._pass(); }
@@ -190,14 +216,12 @@ class Injector {
         if (!this.port) {
             const found = await discoverPort(this.cfg.port);
             if (!found) {
-                if (!this._warnedOffline) {
-                    this.log(t('notFound'), 'warn');
-                    this._warnedOffline = true;
-                }
+                await this._reportOffline();
                 return;
             }
             this.port = found.port;
             this._warnedOffline = false;
+            this._offlineState = null;
             this.log(t('connected', found.port, found.source), 'ok');
         }
 

@@ -107,7 +107,7 @@ flowchart LR
     FILTER -.->|"blocked → left for you"| BTN
 ```
 
-1. **Discover.** Antigravity writes its debugging port to `%APPDATA%\Antigravity\DevToolsActivePort`. The engine reads it and verifies the endpoint.
+1. **Discover.** When started with `--remote-debugging-port=0` (added to its shortcuts by the engine), Antigravity writes its debugging port to `%APPDATA%\Antigravity\DevToolsActivePort`. The engine reads it and verifies the endpoint.
 2. **Inject.** For each renderer window it installs a watchdog and a `MutationObserver` that scans for matching buttons whenever the page changes.
 3. **Filter and click.** Before pressing `Run`, the observer reads the command next to the button and checks it against the block and allow lists.
 4. **Stay alive.** The engine refreshes a heartbeat, drains the click log into the tray, and keeps the page awake while Antigravity is hidden.
@@ -118,12 +118,14 @@ flowchart LR
 
 1. Download `AutoAcceptLite-Kurulum-<version>.exe` from the [Latest Release](https://github.com/Hfatih/AutoAcceptLite/releases/latest).
 2. Run the installer. It installs for the current Windows user only and needs no administrator permission. Node.js is bundled.
-3. Open **Antigravity**, then start **AutoAccept Lite** from its shortcut.
+3. Start **AutoAccept Lite** first; it adds the required flag to the Antigravity shortcuts. Then open **Antigravity** from its Start menu shortcut (if Antigravity is already running, quit it from the tray too and reopen it; see **1.1.8** below).
 4. Look for the icon in the notification area (it may be behind the hidden-icons arrow). Hover over it to see the state.
 
 Running a newer installer over an existing installation upgrades it and keeps your `config.json`.
 
-**Portable:** download `AutoAcceptLite-Portable-1.1.7.zip`, extract the **entire** ZIP to a folder, then run `AutoAcceptLite.exe` inside it. Keep `app/` and `runtime/` next to the EXE. No separate Node.js installation is needed. A launcher EXE downloaded alone cannot work without these folders.
+**Portable:** download `AutoAcceptLite-Portable-1.1.8.zip`, extract the **entire** ZIP to a folder, then run `AutoAcceptLite.exe` inside it. Keep `app/` and `runtime/` next to the EXE. No separate Node.js installation is needed. A launcher EXE downloaded alone cannot work without these folders.
+
+**1.1.8 — Antigravity 44.9.1 connection fix.** After the Antigravity 44.9.1 update, AutoAccept Lite could no longer find Antigravity. Antigravity used to open its debugging (CDP) port by itself, and AutoAccept Lite clicks the buttons through that port. Since 44.9.1 the port opens only when Antigravity is started with `--remote-debugging-port`. **What we did:** on every start AutoAccept Lite adds `--remote-debugging-port=0` to Antigravity's Start menu, desktop and taskbar shortcuts (`0` lets Antigravity pick a free local port, bound to `127.0.0.1` only), and the log tells you when Antigravity was started without it. **What you do:** install 1.1.8 and start it once, fully quit Antigravity (tray included), then reopen Antigravity **from the Start menu shortcut**. When the log shows `Connected: 127.0.0.1:…`, you are done. If you launch Antigravity some other way, add the same flag: `"%LOCALAPPDATA%\Programs\Antigravity\Antigravity.exe" --remote-debugging-port=0`. When Antigravity auto-updates it restarts without the flag; the log then warns "debug port is closed", and reopening Antigravity from the shortcut once fixes it.
 
 **1.1.7:** stops endless Retry clicking on pages where Retry reloads the page (e.g. Android CLI plugin panels showing "The Android CLI is not installed"). The 3-per-minute circuit breaker now lives in the engine per window, so a reload no longer resets it; after 3 Retry/Continue clicks in 60 s that window is paused for 10 minutes and the log says so.
 
@@ -211,6 +213,7 @@ npm test
 ## 🩺 Troubleshooting
 
 - **"Antigravity not found" in the log:** open Antigravity; the engine connects on its own. If you set `port` manually, make sure it is the right one.
+- **"debug port is closed" in the log:** since Antigravity 44.9.1 the app opens its debugging port only when started with `--remote-debugging-port`. AutoAccept Lite adds `--remote-debugging-port=0` to the Antigravity shortcuts on every start; fully quit Antigravity (tray included) and reopen it from the Start menu. After an Antigravity auto-update restarts the app, reopen it from the shortcut once more.
 - **The icon is there but nothing is clicked:** hover over the icon. *paused* means choose **Resume**; *engine stopped* means choose **Restart engine** and check the log.
 - **Nothing happens when the shortcut is clicked:** the log should open on startup. If it does not, check Windows Security's Protection history for a block or quarantine entry and record the exact message. If already running, look behind the hidden-icons arrow.
 - **Missing application files:** reinstall the complete installer or extract the entire portable ZIP. Do not run the EXE from inside the ZIP.
