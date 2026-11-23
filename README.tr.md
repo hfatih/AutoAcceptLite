@@ -19,7 +19,7 @@
     <img src="https://img.shields.io/badge/Tepsi-.NET%20Framework%204-512BD4?logo=dotnet&style=flat-square" alt=".NET Framework 4">
     <img src="https://img.shields.io/badge/Protokol-Chrome%20DevTools-4285F4?logo=googlechrome&logoColor=white&style=flat-square" alt="Chrome DevTools Protocol">
     <img src="https://img.shields.io/badge/Telemetri-Yok%20%2F%20%25100%20Yerel-10B981?style=flat-square" alt="Telemetri yok">
-    <img src="https://img.shields.io/badge/Lisans-MIT-blue?style=flat-square" alt="MIT Lisansı">
+    <img src="https://img.shields.io/badge/Lisans-GPL--3.0-blue?style=flat-square" alt="GPL-3.0-only">
   </p>
   <p align="center">
     <img src="https://hits.sh/github.com/hfatih/AutoAcceptLite.svg?style=flat-square&label=g%C3%B6r%C3%BCnt%C3%BClenme&color=e7a0b9" alt="Views">
@@ -267,6 +267,8 @@ npm test
 
 ## 📄 Lisans & Sorumluluk Reddi
 
-[MIT Lisansı](LICENSE) ile yayınlanır. `src/DOMObserver.js`, MIT lisanslı [AntiGravity-AutoAccept](https://github.com/yazanbaker94/AntiGravity-AutoAccept) projesine dayanır; özgün telif ve lisans bildirimi [`LICENSE.upstream`](LICENSE.upstream) içinde korunur. Pakete dahil Node.js çalışma zamanı kendi koşullarına tabidir ve `LICENSE.node.txt` olarak gelir. Ayrıca [üçüncü taraf bildirimlerine](THIRD-PARTY-NOTICES.md) bakın.
+[GNU GPL v3.0](LICENSE) ile yayınlanır. `src/DOMObserver.js`, MIT lisanslı [AntiGravity-AutoAccept](https://github.com/yazanbaker94/AntiGravity-AutoAccept) projesine dayanır; özgün telif ve lisans bildirimi [`LICENSE.upstream`](LICENSE.upstream) içinde korunur. Pakete dahil Node.js çalışma zamanı kendi koşullarına tabidir ve `LICENSE.node.txt` olarak gelir. Ayrıca [üçüncü taraf bildirimlerine](THIRD-PARTY-NOTICES.md) bakın.
 
 *AutoAccept Lite bağımsız bir açık kaynak projedir ve Google ile bağlantılı değildir. Antigravity ve adı geçen diğer ürünler ilgili sahiplerinin ticari markalarıdır. Ajan eylemlerini otomatik onaylamanın sorumluluğu size aittir.*
+
+Bu sürümde bize ait kod ve özgün içerik [GNU GPL v3.0](LICENSE) (GPL-3.0-only) altında yayımlanır. Üçüncü taraf kod, yazı tipleri, görseller, veriler ve marka öğeleri kendi lisans ve atıflarına tabidir. [Önceki lisans ve telif bildirimi](licenses/previous-license.txt).

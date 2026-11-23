@@ -19,7 +19,7 @@
     <img src="https://img.shields.io/badge/Tray-.NET%20Framework%204-512BD4?logo=dotnet&style=flat-square" alt=".NET Framework 4">
     <img src="https://img.shields.io/badge/Protocol-Chrome%20DevTools-4285F4?logo=googlechrome&logoColor=white&style=flat-square" alt="Chrome DevTools Protocol">
     <img src="https://img.shields.io/badge/Telemetry-Zero%20%2F%20100%25%20Local-10B981?style=flat-square" alt="Zero Telemetry">
-    <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License MIT">
+    <img src="https://img.shields.io/badge/License-GPL--3.0-blue?style=flat-square" alt="GPL-3.0-only">
   </p>
   <p align="center">
     <img src="https://hits.sh/github.com/hfatih/AutoAcceptLite.svg?style=flat-square&label=views&color=e7a0b9" alt="Views">
@@ -226,6 +226,8 @@ npm test
 
 ## 📄 License & Disclaimer
 
-Released under the [MIT License](LICENSE). `src/DOMObserver.js` is based on the MIT-licensed [AntiGravity-AutoAccept](https://github.com/yazanbaker94/AntiGravity-AutoAccept) project; its copyright and license notice are preserved in [`LICENSE.upstream`](LICENSE.upstream). The bundled Node.js runtime is covered by its own terms, shipped as `LICENSE.node.txt`. See also [third-party notices](THIRD-PARTY-NOTICES.md).
+Released under the [GNU GPL v3.0](LICENSE). `src/DOMObserver.js` is based on the MIT-licensed [AntiGravity-AutoAccept](https://github.com/yazanbaker94/AntiGravity-AutoAccept) project; its copyright and license notice are preserved in [`LICENSE.upstream`](LICENSE.upstream). The bundled Node.js runtime is covered by its own terms, shipped as `LICENSE.node.txt`. See also [third-party notices](THIRD-PARTY-NOTICES.md).
 
 *AutoAccept Lite is an independent open-source project and is not affiliated with Google. Antigravity and other named products are trademarks of their respective owners. Automatically approving agent actions is done at your own risk.*
+
+Project-owned code and original material in this revision are licensed under [GNU GPL v3.0](LICENSE) (GPL-3.0-only). Third-party code, fonts, imagery, data, and brand assets retain their own terms and attributions. [Previous license and copyright notice](licenses/previous-license.txt).

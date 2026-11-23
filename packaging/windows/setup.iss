@@ -48,6 +48,7 @@ Source: "payload\runtime\*"; DestDir: "{app}\runtime"; Flags: ignoreversion recu
 Source: "payload\AutoAcceptLite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "dist\AutoAcceptLite-Kaldir-{#AppVersion}.exe"; DestDir: "{app}"; DestName: "AutoAcceptLite-Kaldir.exe"; Flags: ignoreversion
 Source: "payload\app\LICENSE.upstream"; DestDir: "{app}"; Flags: ignoreversion
+Source: "payload\app\licenses\previous-license.txt"; DestDir: "{app}\licenses"; Flags: ignoreversion
 Source: "payload\runtime\LICENSE.node.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "assets\AutoAcceptLite.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Kullanim.txt"; DestDir: "{app}"; Flags: ignoreversion

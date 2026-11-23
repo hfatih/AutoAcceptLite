@@ -34,6 +34,8 @@ New-Item -ItemType Directory -Force -Path $appOut | Out-Null
 foreach ($name in @('index.js', 'config.json', 'package.json', 'package-lock.json', 'README.md', 'README.tr.md', 'LICENSE', 'LICENSE.upstream', 'THIRD-PARTY-NOTICES.md')) {
     Copy-Item -LiteralPath (Join-Path $repoRoot $name) -Destination $appOut
 }
+New-Item -ItemType Directory -Force -Path (Join-Path $appOut 'licenses') | Out-Null
+Copy-Item -LiteralPath (Join-Path $repoRoot 'licenses/previous-license.txt') -Destination (Join-Path $appOut 'licenses')
 Copy-Item -LiteralPath (Join-Path $repoRoot 'src') -Destination $appOut -Recurse
 Copy-Item -LiteralPath (Join-Path $repoRoot 'node_modules') -Destination $appOut -Recurse
 

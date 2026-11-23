@@ -11,5 +11,5 @@
   "dependencies": {
     "ws": "^8.19.0"
   },
-  "license": "MIT"
+  "license": "GPL-3.0-only"
 }
