@@ -1,4 +1,4 @@
-﻿AutoAccept Lite 1.1.9 - Windows x64
+﻿AutoAccept Lite 1.1.10 - Windows x64
 (English below)
 
 Kurulumdan sonra Antigravity'yi açın, ardından masaüstü kısayoluyla
@@ -82,6 +82,9 @@ prove the app is harmful. Windows security settings are never changed
 automatically.
 
 
+1.1.10 - Hızlı onay / Faster approvals
+Aynı yerde art arda açılan onay düğmesine 5 sn beklemeden basılır.
+Approval buttons that reappear in the same place are clicked without the 5 s wait.
 1.1.9 - Güvenli kısayol / Safer shortcuts
 Bayrak yalnız sizin kısayollarınıza eklenir; kaldırınca geri alınır.
 The flag is added only to your own shortcuts and removed on uninstall.

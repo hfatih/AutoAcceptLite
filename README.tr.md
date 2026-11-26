@@ -130,6 +130,11 @@ Görev Yöneticisi'nde uygulama iki satır olarak görünür: **AutoAccept Lite*
 
 ---
 
+## ⚡ 1.1.10: hızlı onay
+
+- Onay çubuğu aynı yerde yeni bir Submit/Run/Allow düğmesi açtığında her biri ~5 sn bekliyordu; tıklama sonrası bekleme düğmeye değil, konumuna bağlıydı.
+- 5 sn bekleme artık yalnız basılan düğmeye uygulanır; aynı yerdeki yeni düğmeye ~0,6 sn içinde basılır (Antigravity'de 10–69 ms ölçüldü).
+
 ## 🔒 1.1.9: daha güvenli kısayol ayarı
 
 - Bayrak artık yalnız **sizin** Başlat menüsü, masaüstü ve görev çubuğu kısayollarınıza eklenir. Tüm Windows kullanıcılarının ortak kısayollarına dokunulmaz; hata ayıklama portu başka hesaplar için açılmaz.

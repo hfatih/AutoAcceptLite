@@ -89,6 +89,7 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
     window.__AA_CLEANUP = function() {
         if (window.__AA_OBSERVER) { window.__AA_OBSERVER.disconnect(); window.__AA_OBSERVER = null; }
         if (window.__AA_FALLBACK_INTERVAL) { clearInterval(window.__AA_FALLBACK_INTERVAL); window.__AA_FALLBACK_INTERVAL = null; }
+        if (rescanTimer) { clearTimeout(rescanTimer); rescanTimer = null; }
     };
 
     window.__AA_LAST_SCAN = Date.now();
@@ -116,8 +117,21 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
     }
 
     var COOLDOWN_MS = 5000;
-    var EXPAND_COOLDOWN_MS = 10000; 
+    var EXPAND_COOLDOWN_MS = 10000;
     var clickCooldowns = {};
+    // Bekleme ayni DUGUME uygulanir. Eskiden yalniz DOM yoluna bagliydi: onay cubugu
+    // her seferinde ayni yerde yeni bir dugme acinca (Submit/Run/Allow) her onay
+    // 5 sn bekliyordu. Yol beklemesi artik yalniz yeniden cizilen kopyaya karsi kisa koruma.
+    var PATH_COOLDOWN_MS = 600;
+    var clickedNodes = new WeakMap();
+    var rescanTimer = null;
+    function scheduleRescan(ms) {
+        if (rescanTimer) return;
+        rescanTimer = setTimeout(function() {
+            rescanTimer = null;
+            try { scanAndClick(); } catch(e) { _log('rescan error:', e.message); }
+        }, Math.max(0, ms) + 20);
+    }
 
     function _domPath(el) {
         var parts = []; var curr = el;
@@ -275,9 +289,15 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
                     var btnKey = isExpandType
                         ? _domPath(clickable) + ':expand:' + (clickable.textContent || '').trim().toLowerCase().substring(0, 30)
                         : _domPath(clickable) + ':' + (clickable.textContent || '').trim().toLowerCase().substring(0, 30);
-                    var cooldown = isExpandType ? EXPAND_COOLDOWN_MS : COOLDOWN_MS;
+                    var cooldown = isExpandType ? EXPAND_COOLDOWN_MS : PATH_COOLDOWN_MS;
                     var lastClick = clickCooldowns[btnKey] || 0;
-                    if (lastClick && (Date.now() - lastClick < cooldown)) continue;
+                    if (lastClick && (Date.now() - lastClick < cooldown)) {
+                        // Ayni yerde yeni dugme: kisa koruma bitince yeniden tara, nabzi bekleme.
+                        if (!isExpandType) scheduleRescan(cooldown - (Date.now() - lastClick));
+                        continue;
+                    }
+                    var nodeClick = clickedNodes.get(clickable) || 0;
+                    if (nodeClick && (Date.now() - nodeClick < COOLDOWN_MS)) continue;
                     
                     best = { node: clickable, matchedText: text, priority: t };
                     if (t === 0) return best; 
@@ -416,7 +436,7 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
                         btn.style.cssText += ';background:#4a1c1c !important;opacity:0.6;cursor:not-allowed;';
                         btn.textContent = '\uD83D\uDEAB Blocked by Filter';
                         var blockKey = _domPath(btn) + ':' + (btn.textContent || '').trim().toLowerCase().substring(0, 30);
-                        clickCooldowns[blockKey] = Date.now() + (15000 - COOLDOWN_MS);
+                        clickCooldowns[blockKey] = Date.now() + (15000 - PATH_COOLDOWN_MS);
                         continue; 
                     }
                 }
@@ -433,7 +453,8 @@ function buildDOMObserverScript(customTexts, blockedCommands, allowedCommands, a
                 ? _domPath(btn) + ':expand:' + (btn.textContent || '').trim().toLowerCase().substring(0, 30)
                 : _domPath(btn) + ':' + (btn.textContent || '').trim().toLowerCase().substring(0, 30);
             clickCooldowns[key] = Date.now();
-            
+            clickedNodes.set(btn, Date.now());
+
             // ⚡ CLICK AUDIT: Store what we clicked for heartbeat to report
             if (!window.__AA_CLICK_LOG) window.__AA_CLICK_LOG = [];
             window.__AA_CLICK_LOG.push({ text: matchedText, tag: (btn.tagName || '').toLowerCase(), path: _domPath(btn), time: Date.now() });

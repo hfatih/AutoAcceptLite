@@ -123,7 +123,9 @@ flowchart LR
 
 Running a newer installer over an existing installation upgrades it and keeps your `config.json`.
 
-**Portable:** download `AutoAcceptLite-Portable-1.1.9.zip`, extract the **entire** ZIP to a folder, then run `AutoAcceptLite.exe` inside it. Keep `app/` and `runtime/` next to the EXE. No separate Node.js installation is needed. A launcher EXE downloaded alone cannot work without these folders.
+**Portable:** download `AutoAcceptLite-Portable-1.1.10.zip`, extract the **entire** ZIP to a folder, then run `AutoAcceptLite.exe` inside it. Keep `app/` and `runtime/` next to the EXE. No separate Node.js installation is needed. A launcher EXE downloaded alone cannot work without these folders.
+
+**1.1.10 — faster approvals.** When the approval bar opened a new Submit/Run/Allow button in the same place, each one waited about 5 seconds: the post-click wait was tied to the button's position, not the button. The 5 s wait now applies only to the button that was clicked; a new button in the same place is clicked within about 0.6 s (measured 10–69 ms in Antigravity).
 
 **1.1.9 — safer shortcut handling.** The flag below is now added only to **your own** Start menu, desktop and taskbar shortcuts; shortcuts shared by all Windows users are never touched, so the debugging port is not opened for other accounts. Uninstalling AutoAccept Lite takes `--remote-debugging-port=0` back out of those shortcuts and leaves Antigravity as it was. A port you set yourself (for example `--remote-debugging-port=9222`) is kept.
 
